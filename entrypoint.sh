@@ -73,7 +73,29 @@ print("[entrypoint] common_site_config.json written.")
 PYEOF
 
 # ---------------------------------------------------------------------------
-# 4. Populate the shared volume with REAL (dereferenced) static asset files.
+# 4. Wait for MariaDB to be accepting connections.
+#    On PC reboot Docker starts all containers in parallel so the backend
+#    can start before MariaDB is ready — causing 500 errors.
+# ---------------------------------------------------------------------------
+echo "[entrypoint] Waiting for database at ${DB_HOST}:${DB_PORT}..."
+for i in $(seq 1 30); do
+    if python3 -c "
+import pymysql, sys
+try:
+    pymysql.connect(host='${DB_HOST}', port=int('${DB_PORT}'), user='root', connect_timeout=2)
+    sys.exit(0)
+except Exception as e:
+    sys.exit(1)
+" 2>/dev/null; then
+        echo "[entrypoint] Database is ready."
+        break
+    fi
+    echo "[entrypoint] DB not ready (attempt ${i}/30), retrying in 2s..."
+    sleep 2
+done
+
+# ---------------------------------------------------------------------------
+# 5. Populate the shared volume with REAL (dereferenced) static asset files.
 #    assets_dist is baked into the image with cp -r -L so no symlinks exist.
 #    We only copy if the assets directory is missing or empty.
 # ---------------------------------------------------------------------------

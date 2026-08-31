@@ -1,0 +1,113 @@
+# Custom Frappe + ERPNext + POS Awesome Docker Setup
+
+This directory contains everything you need to build a single custom Docker image containing your custom GitHub versions of **Frappe**, **ERPNext**, and **POS Awesome**, push it to **Docker Hub**, and run it effortlessly on any device with **Docker Compose**.
+
+---
+
+## 🏗️ Architecture
+
+- **Custom Image (`DOCKER_IMAGE`)**: Contains Python virtual environment, Node/Yarn compiled assets, and your custom GitHub repositories:
+  - `frappe`: [https://github.com/idibek-alimov/frappe](https://github.com/idibek-alimov/frappe) (`version-15`)
+  - `erpnext`: [https://github.com/idibek-alimov/erpnext](https://github.com/idibek-alimov/erpnext) (`version-15`)
+  - `posawesome`: [https://github.com/idibek-alimov/posawesome](https://github.com/idibek-alimov/posawesome) (`main`)
+- **Supporting Services (Official Images)**:
+  - `mariadb:10.6`: Official MariaDB database configured for Frappe.
+  - `redis:7-alpine`: Cache and background task queues.
+  - `nginx:alpine`: Static asset serving and reverse proxy for backend & websockets.
+
+---
+
+## 🚀 Part 1: Build and Push (On Your Primary Machine)
+
+### 1. Configure `.env`
+Edit `docker/.env` and replace `idibek` with your actual **Docker Hub username**:
+
+```env
+DOCKER_IMAGE=your_dockerhub_username/frappe-custom:v15
+DB_ROOT_PASSWORD=mariadb_root_password
+ADMIN_PASSWORD=admin_password
+SITE_NAME=mysite.localhost
+HTTP_PORT=80
+```
+
+### 2. Build the Docker Image
+Run the build script:
+```bash
+./scripts/build.sh
+```
+*(This clones your GitHub repositories, installs all Python requirements, and compiles all frontend JavaScript/CSS assets).*
+
+### 3. Push to Docker Hub
+Authenticate and push your image:
+```bash
+./scripts/push.sh
+```
+*(You can also run `docker login` and `docker push your_dockerhub_username/frappe-custom:v15` manually).*
+
+---
+
+## 💻 Part 2: Deploy on ANY Other Device
+
+On any other device (server, laptop, cloud VM, etc.) where Docker is installed:
+
+### 1. Copy the Deployment Files
+You only need the `docker` directory on the target machine:
+- `compose.yaml` (or `docker-compose.yml`)
+- `nginx.conf`
+- `.env`
+- `scripts/`
+
+### 2. Start the Services
+Run:
+```bash
+docker compose pull
+docker compose up -d
+```
+Docker will automatically download your custom image from Docker Hub and standard MariaDB / Redis / Nginx images, then start all services.
+
+### 3. Create / Initialize Your Site
+Run the automated site initialization script:
+```bash
+./scripts/setup-site.sh
+```
+This automatically runs `bench new-site`, sets the Administrator password, installs `erpnext` and `posawesome`, and configures the background scheduler.
+
+### 4. Access the Site
+Open your web browser and navigate to:
+```
+http://localhost
+```
+- **Username**: `Administrator`
+- **Password**: (The value set in your `.env` `ADMIN_PASSWORD`, default: `admin_password`)
+
+---
+
+## 🛠️ Useful Management Commands
+
+| Task | Command |
+| :--- | :--- |
+| **View logs** | `docker compose logs -f backend` |
+| **Check service status** | `docker compose ps` |
+| **Restart services** | `docker compose restart` |
+| **Stop all services** | `docker compose down` |
+| **Open Frappe Bench Console** | `docker compose exec backend bench --site mysite.localhost console` |
+| **Run Database Migrations** | `docker compose exec backend bench --site mysite.localhost migrate` |
+| **Backup Site** | `./scripts/backup.sh` |
+| **Execute arbitrary bench command**| `docker compose exec backend bench <command>` |
+
+---
+
+## 🔄 Updating Your Code in the Future
+
+When you push code updates or bugfixes to your GitHub repositories:
+1. On your build machine, rebuild and push the updated image:
+   ```bash
+   ./scripts/build.sh
+   ./scripts/push.sh
+   ```
+2. On any target device running the stack, pull the latest image and restart:
+   ```bash
+   docker compose pull
+   docker compose up -d
+   docker compose exec backend bench --site mysite.localhost migrate
+   ```

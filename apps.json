@@ -1,0 +1,12 @@
+[
+  {
+    "name": "erpnext",
+    "url": "https://github.com/idibek-alimov/erpnext.git",
+    "branch": "version-15"
+  },
+  {
+    "name": "posawesome",
+    "url": "https://github.com/idibek-alimov/posawesome.git",
+    "branch": "main"
+  }
+]

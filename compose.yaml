@@ -12,10 +12,11 @@ services:
     volumes:
       - mariadb-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-admin_password}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
 
   redis-cache:
     image: redis:7-alpine
@@ -35,6 +36,13 @@ services:
     image: ${DOCKER_IMAGE:-idibek/frappe-custom:v15}
     restart: unless-stopped
     command: backend
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      REDIS_CACHE: redis-cache:6379
+      REDIS_QUEUE: redis-queue:6379
+      SOCKETIO_PORT: 9000
+      SITE_NAME: ${SITE_NAME:-mysite.localhost}
     depends_on:
       db:
         condition: service_healthy
@@ -42,12 +50,6 @@ services:
         condition: service_started
       redis-queue:
         condition: service_started
-    environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      REDIS_CACHE: redis-cache:6379
-      REDIS_QUEUE: redis-queue:6379
-      SOCKETIO_PORT: 9000
     volumes:
       - sites-data:/home/frappe/frappe-bench/sites
 
@@ -55,15 +57,16 @@ services:
     image: ${DOCKER_IMAGE:-idibek/frappe-custom:v15}
     restart: unless-stopped
     command: websocket
-    depends_on:
-      backend:
-        condition: service_started
     environment:
       DB_HOST: db
       DB_PORT: 3306
       REDIS_CACHE: redis-cache:6379
       REDIS_QUEUE: redis-queue:6379
       SOCKETIO_PORT: 9000
+      SITE_NAME: ${SITE_NAME:-mysite.localhost}
+    depends_on:
+      backend:
+        condition: service_started
     volumes:
       - sites-data:/home/frappe/frappe-bench/sites
 
@@ -71,6 +74,10 @@ services:
     image: ${DOCKER_IMAGE:-idibek/frappe-custom:v15}
     restart: unless-stopped
     command: worker default
+    environment:
+      DB_HOST: db
+      REDIS_QUEUE: redis-queue:6379
+      SITE_NAME: ${SITE_NAME:-mysite.localhost}
     depends_on:
       backend:
         condition: service_started
@@ -81,6 +88,10 @@ services:
     image: ${DOCKER_IMAGE:-idibek/frappe-custom:v15}
     restart: unless-stopped
     command: worker short
+    environment:
+      DB_HOST: db
+      REDIS_QUEUE: redis-queue:6379
+      SITE_NAME: ${SITE_NAME:-mysite.localhost}
     depends_on:
       backend:
         condition: service_started
@@ -91,6 +102,10 @@ services:
     image: ${DOCKER_IMAGE:-idibek/frappe-custom:v15}
     restart: unless-stopped
     command: worker long
+    environment:
+      DB_HOST: db
+      REDIS_QUEUE: redis-queue:6379
+      SITE_NAME: ${SITE_NAME:-mysite.localhost}
     depends_on:
       backend:
         condition: service_started
@@ -101,6 +116,10 @@ services:
     image: ${DOCKER_IMAGE:-idibek/frappe-custom:v15}
     restart: unless-stopped
     command: scheduler
+    environment:
+      DB_HOST: db
+      REDIS_QUEUE: redis-queue:6379
+      SITE_NAME: ${SITE_NAME:-mysite.localhost}
     depends_on:
       backend:
         condition: service_started
@@ -111,12 +130,14 @@ services:
     image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "${HTTP_PORT:-80}:80"
+      - "${HTTP_PORT:-8088}:80"
+    environment:
+      FRAPPE_SITE_NAME: ${SITE_NAME:-mysite.localhost}
     depends_on:
       - backend
       - websocket
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template:ro
       - sites-data:/var/www/html:ro
 
 volumes:

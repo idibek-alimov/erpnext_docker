@@ -14,7 +14,7 @@ echo "========================================================="
 echo "Backing up Site: ${SITE_NAME}"
 echo "========================================================="
 
-docker compose exec backend bench --site "${SITE_NAME}" backup --with-files
+docker compose exec -w /home/frappe/frappe-bench backend bench --site "${SITE_NAME}" backup --with-files
 
 echo ""
 echo "Backup completed. Backup files are stored in sites/${SITE_NAME}/private/backups inside the sites volume."

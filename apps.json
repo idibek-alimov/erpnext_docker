@@ -5,8 +5,14 @@
     "branch": "version-15"
   },
   {
+    "name": "hrms",
+    "url": "https://github.com/idibek-alimov/hrms.git",
+    "branch": "version-15"
+  },
+  {
     "name": "posawesome",
     "url": "https://github.com/idibek-alimov/posawesome.git",
     "branch": "main"
   }
 ]
+

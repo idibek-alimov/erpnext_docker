@@ -54,7 +54,9 @@ docker compose exec -w /home/frappe/frappe-bench backend \
     bench new-site "${SITE_NAME}" \
         --admin-password "${ADMIN_PASS}" \
         --db-root-password "${DB_ROOT_PASS}" \
+        --mariadb-user-host-login-scope "%" \
         --install-app erpnext \
+        --install-app hrms \
         --install-app posawesome \
         --set-default
 

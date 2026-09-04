@@ -33,10 +33,10 @@ mkdir -p \
 cd "${BENCH_DIR}"
 
 # ---------------------------------------------------------------------------
-# 2. Sync apps.txt from image into the shared volume (only if missing).
+# 2. Sync apps.txt from image into the shared volume.
 # ---------------------------------------------------------------------------
-if [ ! -f "${SITES_DIR}/apps.txt" ] && [ -f "${BENCH_DIR}/apps_txt_dist" ]; then
-    echo "[entrypoint] Copying apps.txt into sites volume..."
+if [ -f "${BENCH_DIR}/apps_txt_dist" ]; then
+    echo "[entrypoint] Syncing apps.txt into sites volume..."
     cp "${BENCH_DIR}/apps_txt_dist" "${SITES_DIR}/apps.txt"
 fi
 
@@ -80,11 +80,12 @@ PYEOF
 echo "[entrypoint] Waiting for database at ${DB_HOST}:${DB_PORT}..."
 for i in $(seq 1 30); do
     if python3 -c "
-import pymysql, sys
+import socket, sys
 try:
-    pymysql.connect(host='${DB_HOST}', port=int('${DB_PORT}'), user='root', connect_timeout=2)
+    s = socket.create_connection(('${DB_HOST}', int('${DB_PORT}')), timeout=2)
+    s.close()
     sys.exit(0)
-except Exception as e:
+except Exception:
     sys.exit(1)
 " 2>/dev/null; then
         echo "[entrypoint] Database is ready."
@@ -103,13 +104,13 @@ if [ -d "${BENCH_DIR}/assets_dist" ]; then
     if [ ! -f "${SITES_DIR}/assets/assets.json" ]; then
         echo "[entrypoint] Copying compiled assets into sites volume..."
         mkdir -p "${SITES_DIR}/assets"
-        cp -r "${BENCH_DIR}/assets_dist/"* "${SITES_DIR}/assets/"
+        cp -r "${BENCH_DIR}/assets_dist/." "${SITES_DIR}/assets/"
         echo "[entrypoint] Assets copied."
     fi
 fi
 
 # ---------------------------------------------------------------------------
-# 5. If SITE_NAME is set and a currentsite.txt is missing, create it so
+# 6. If SITE_NAME is set and a currentsite.txt is missing, create it so
 #    Frappe knows which site is the default without needing a Host: header match.
 # ---------------------------------------------------------------------------
 if [ -n "${SITE_NAME}" ] && [ ! -f "${SITES_DIR}/currentsite.txt" ]; then

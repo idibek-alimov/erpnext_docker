@@ -1,6 +1,6 @@
-# Custom Frappe + ERPNext + POS Awesome Docker Setup
+# Custom Frappe + ERPNext + HRMS + POS Awesome Docker Setup
 
-This directory contains everything you need to build a single custom Docker image containing your custom GitHub versions of **Frappe**, **ERPNext**, and **POS Awesome**, push it to **Docker Hub**, and run it effortlessly on any device with **Docker Compose**.
+This directory contains everything you need to build a single custom Docker image containing your custom GitHub versions of **Frappe**, **ERPNext**, **HRMS**, and **POS Awesome**, push it to **Docker Hub**, and run it effortlessly on any device with **Docker Compose**.
 
 ---
 
@@ -9,9 +9,10 @@ This directory contains everything you need to build a single custom Docker imag
 - **Custom Image (`DOCKER_IMAGE`)**: Contains Python virtual environment, Node/Yarn compiled assets, and your custom GitHub repositories:
   - `frappe`: [https://github.com/idibek-alimov/frappe](https://github.com/idibek-alimov/frappe) (`version-15`)
   - `erpnext`: [https://github.com/idibek-alimov/erpnext](https://github.com/idibek-alimov/erpnext) (`version-15`)
+  - `hrms`: [https://github.com/idibek-alimov/hrms](https://github.com/idibek-alimov/hrms) (`version-15`)
   - `posawesome`: [https://github.com/idibek-alimov/posawesome](https://github.com/idibek-alimov/posawesome) (`main`)
 - **Supporting Services (Official Images)**:
-  - `mariadb:10.6`: Official MariaDB database configured for Frappe.
+  - `mariadb:10.11`: Official MariaDB database configured for Frappe.
   - `redis:7-alpine`: Cache and background task queues.
   - `nginx:alpine`: Static asset serving and reverse proxy for backend & websockets.
 
@@ -70,7 +71,7 @@ Run the automated site initialization script:
 ```bash
 ./scripts/setup-site.sh
 ```
-This automatically runs `bench new-site`, sets the Administrator password, installs `erpnext` and `posawesome`, and configures the background scheduler.
+This automatically runs `bench new-site`, sets the Administrator password, installs `erpnext`, `hrms`, and `posawesome`, and configures the background scheduler.
 
 ### 4. Access the Site
 Open your web browser and navigate to:

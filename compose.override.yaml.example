@@ -1,0 +1,38 @@
+# =============================================================================
+# OPTIONAL LOCAL DEVELOPMENT OVERRIDE
+# =============================================================================
+# Only use this file if you are on your PRIMARY development machine and want
+# live code changes in your local `apps/` directory to instantly reflect inside
+# the containers without rebuilding the Docker image.
+#
+# HOW TO USE:
+#   cp compose.override.yaml.example compose.override.yaml
+#
+# Docker Compose will automatically merge this file with compose.yaml.
+# This file is ignored by git and will NOT affect your production deployment.
+# =============================================================================
+
+services:
+  backend:
+    volumes:
+      - ../apps:/home/frappe/frappe-bench/apps
+
+  websocket:
+    volumes:
+      - ../apps:/home/frappe/frappe-bench/apps
+
+  queue-default:
+    volumes:
+      - ../apps:/home/frappe/frappe-bench/apps
+
+  queue-short:
+    volumes:
+      - ../apps:/home/frappe/frappe-bench/apps
+
+  queue-long:
+    volumes:
+      - ../apps:/home/frappe/frappe-bench/apps
+
+  scheduler:
+    volumes:
+      - ../apps:/home/frappe/frappe-bench/apps

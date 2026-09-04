@@ -12,8 +12,6 @@ FROM python:${PYTHON_VERSION}-slim-${DEBIAN_BASE} AS builder
 ARG FRAPPE_REPO=https://github.com/idibek-alimov/frappe.git
 ARG FRAPPE_BRANCH=version-15
 ARG NODE_VERSION=20
-# CACHEBUST is passed by build.sh at build time to force re-cloning from GitHub.
-ARG CACHEBUST=1
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
@@ -32,13 +30,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && npm install -g yarn \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# ---- Create unprivileged frappe user -------------------------------------
-RUN useradd -ms /bin/bash -u 1000 frappe
+# ---- Create unprivileged frappe user & bench directory -------------------
+RUN useradd -ms /bin/bash -u 1000 frappe \
+    && mkdir -p /home/frappe/frappe-bench \
+    && chown -R frappe:frappe /home/frappe
 USER frappe
 WORKDIR /home/frappe/frappe-bench
 
 # ---- Bench skeleton directories ------------------------------------------
 RUN mkdir -p apps sites config config/pids logs
+
+# ---- Configure GitHub Token if provided (for private repositories) -------
+ARG GITHUB_TOKEN=""
+RUN if [ -n "${GITHUB_TOKEN}" ]; then \
+        git config --global url."https://${GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"; \
+    fi
 
 # ---- Python virtualenv + frappe-bench CLI --------------------------------
 RUN python3 -m venv env \
@@ -47,19 +53,30 @@ RUN python3 -m venv env \
 
 # ---- Clone & install your custom Frappe ----------------------------------
 # (CACHEBUST above this line busts Docker cache so fresh code is always pulled)
-RUN git clone --depth 1 -b ${FRAPPE_BRANCH} ${FRAPPE_REPO} apps/frappe \
+ARG CACHEBUST=1
+RUN echo "Cache bust: ${CACHEBUST}" \
+    && git clone --depth 1 -b ${FRAPPE_BRANCH} ${FRAPPE_REPO} apps/frappe \
     && ./env/bin/pip install --no-cache-dir -e apps/frappe
 
-# ---- Clone & install ERPNext and POS Awesome via apps.json ---------------
+# ---- Clone & install ERPNext, HRMS, and POS Awesome via apps.json --------
 COPY --chown=frappe:frappe apps.json apps.json
 COPY --chown=frappe:frappe install_apps.py install_apps.py
-RUN python3 install_apps.py
+RUN python3 install_apps.py \
+    && git config --global --unset-all url."https://${GITHUB_TOKEN}@github.com/".insteadOf 2>/dev/null || true
 
 # ---- Node dependencies for all apps with package.json --------------------
-RUN for d in apps/frappe apps/erpnext apps/posawesome; do \
+RUN for d in apps/frappe apps/erpnext apps/hrms apps/posawesome; do \
         if [ -f "$d/package.json" ]; then \
             echo "yarn: installing $d..." && \
             (cd "$d" && yarn install --ignore-engines 2>&1); \
+        fi \
+    done
+
+# ---- Build SPA/frontend apps (e.g. HRMS, POS Awesome) if build script exists ---
+RUN for d in apps/hrms apps/posawesome; do \
+        if [ -f "$d/package.json" ]; then \
+            echo "yarn build: $d..." && \
+            (cd "$d" && yarn build 2>&1 || true); \
         fi \
     done
 

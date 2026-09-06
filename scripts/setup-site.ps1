@@ -76,7 +76,7 @@ docker compose exec -w /home/frappe/frappe-bench backend mkdir -p config/pids lo
 
 # 4. Create Frappe site and install apps
 Write-Host "[setup] Creating site '$SiteName' and installing apps..." -ForegroundColor Yellow
-Write-Host "[setup] (This takes 2–5 minutes on first run)..."
+Write-Host "[setup] (This takes 2-5 minutes on first run)..."
 docker compose exec -w /home/frappe/frappe-bench backend `
     bench new-site "$SiteName" `
         --admin-password "$AdminPassword" `

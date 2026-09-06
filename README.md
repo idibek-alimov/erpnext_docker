@@ -68,9 +68,17 @@ Docker will automatically download your custom image from Docker Hub and standar
 
 ### 3. Create / Initialize Your Site
 Run the automated site initialization script:
-```bash
-./scripts/setup-site.sh
-```
+
+- **Linux / macOS / Git Bash**:
+  ```bash
+  ./scripts/setup-site.sh
+  ```
+- **Windows (PowerShell)**:
+  ```powershell
+  .\scripts\setup-site.ps1
+  ```
+*(If PowerShell blocks running scripts, run: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` first).*
+
 This automatically runs `bench new-site`, sets the Administrator password, installs `erpnext`, `hrms`, and `posawesome`, and configures the background scheduler.
 
 ### 4. Access the Site
@@ -85,16 +93,18 @@ http://localhost
 
 ## 🛠️ Useful Management Commands
 
-| Task | Command |
-| :--- | :--- |
-| **View logs** | `docker compose logs -f backend` |
-| **Check service status** | `docker compose ps` |
-| **Restart services** | `docker compose restart` |
-| **Stop all services** | `docker compose down` |
-| **Open Frappe Bench Console** | `docker compose exec backend bench --site mysite.localhost console` |
-| **Run Database Migrations** | `docker compose exec backend bench --site mysite.localhost migrate` |
-| **Backup Site** | `./scripts/backup.sh` |
-| **Execute arbitrary bench command**| `docker compose exec backend bench <command>` |
+| Task | Linux / Mac / Git Bash | Windows PowerShell |
+| :--- | :--- | :--- |
+| **Initialize Site** | `./scripts/setup-site.sh` | `.\scripts\setup-site.ps1` |
+| **Backup Site** | `./scripts/backup.sh` | `.\scripts\backup.ps1` |
+| **Build Image** | `./scripts/build.sh` | `.\scripts\build.ps1` |
+| **Push Image** | `./scripts/push.sh` | `.\scripts\push.ps1` |
+| **View logs** | `docker compose logs -f backend` | `docker compose logs -f backend` |
+| **Check service status** | `docker compose ps` | `docker compose ps` |
+| **Restart services** | `docker compose restart` | `docker compose restart` |
+| **Stop all services** | `docker compose down` | `docker compose down` |
+| **Open Frappe Console** | `docker compose exec backend bench --site mysite.localhost console` | `docker compose exec backend bench --site mysite.localhost console` |
+| **Run Migrations** | `docker compose exec backend bench --site mysite.localhost migrate` | `docker compose exec backend bench --site mysite.localhost migrate` |
 
 ---
 

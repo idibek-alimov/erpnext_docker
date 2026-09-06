@@ -78,8 +78,9 @@ PYEOF
 #    can start before MariaDB is ready — causing 500 errors.
 # ---------------------------------------------------------------------------
 echo "[entrypoint] Waiting for database at ${DB_HOST}:${DB_PORT}..."
-for i in $(seq 1 30); do
-    if python3 -c "
+for i in $(seq 1 60); do
+    if mariadb-admin ping -h "${DB_HOST}" -P "${DB_PORT}" --silent 2>/dev/null || \
+       python3 -c "
 import socket, sys
 try:
     s = socket.create_connection(('${DB_HOST}', int('${DB_PORT}')), timeout=2)
@@ -91,7 +92,7 @@ except Exception:
         echo "[entrypoint] Database is ready."
         break
     fi
-    echo "[entrypoint] DB not ready (attempt ${i}/30), retrying in 2s..."
+    echo "[entrypoint] DB not ready (attempt ${i}/60), retrying in 2s..."
     sleep 2
 done
 

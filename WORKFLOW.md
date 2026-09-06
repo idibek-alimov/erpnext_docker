@@ -32,7 +32,10 @@ docker compose pull
 docker compose up -d
 
 # 3. Initialize the site (ONLY run this on fresh first-time install)
+# On Linux / Mac / Git Bash:
 ./scripts/setup-site.sh
+# On Windows (PowerShell):
+.\scripts\setup-site.ps1
 ```
 
 ---

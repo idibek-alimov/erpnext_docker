@@ -15,7 +15,7 @@ if [ -f .env ]; then
   source .env
 fi
 
-SITE_NAME="${1:-${SITE_NAME:-mysite.localhost}}"
+SITE_NAME="${1:-${SITE_NAME:-radolfa.localhost}}"
 ADMIN_PASS="${2:-${ADMIN_PASSWORD:-admin_password}}"
 DB_ROOT_PASS="${3:-${DB_ROOT_PASSWORD:-mariadb_root_password}}"
 HTTP_PORT="${HTTP_PORT:-8088}"
@@ -59,6 +59,10 @@ docker compose exec -w /home/frappe/frappe-bench backend \
         --install-app hrms \
         --install-app posawesome \
         --set-default
+
+# Install web_sync if available in apps
+docker compose exec -w /home/frappe/frappe-bench backend \
+    bash -c "if [ -d 'apps/web_sync' ]; then echo '[setup] Installing web_sync...' && bench --site '${SITE_NAME}' install-app web_sync || true; fi"
 
 # ---- 5. Write the site name into currentsite.txt so Frappe always knows --
 #         which site to serve even when the Host header is just "localhost"

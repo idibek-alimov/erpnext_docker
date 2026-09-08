@@ -29,7 +29,7 @@ if (Test-Path $EnvFile) {
 
 # Resolve variables with fallbacks
 if (-not $SiteName) {
-    $SiteName = if ($env:SITE_NAME) { $env:SITE_NAME } else { "mysite.localhost" }
+    $SiteName = if ($env:SITE_NAME) { $env:SITE_NAME } else { "radolfa.localhost" }
 }
 if (-not $AdminPassword) {
     $AdminPassword = if ($env:ADMIN_PASSWORD) { $env:ADMIN_PASSWORD } else { "admin_password" }
@@ -45,8 +45,8 @@ Write-Host "  Site Name : $SiteName"
 Write-Host "  HTTP Port : $HttpPort"
 Write-Host "=========================================================" -ForegroundColor Cyan
 
-# 1. Bring up the stack if not running
-$runningBackend = docker compose ps --status running -q backend
+# 1. Start Docker stack if not running
+$runningBackend = docker compose ps --status running backend -q 2>$null
 if (-not $runningBackend) {
     Write-Host "[setup] Starting Docker services..." -ForegroundColor Yellow
     docker compose up -d
@@ -86,6 +86,10 @@ docker compose exec -w /home/frappe/frappe-bench backend `
         --install-app hrms `
         --install-app posawesome `
         --set-default
+
+# Install web_sync if available in apps
+docker compose exec -w /home/frappe/frappe-bench backend `
+    bash -c "if [ -d 'apps/web_sync' ]; then echo '[setup] Installing web_sync...' && bench --site '$SiteName' install-app web_sync || true; fi"
 
 # 5. Set default site in currentsite.txt
 docker compose exec -w /home/frappe/frappe-bench backend `

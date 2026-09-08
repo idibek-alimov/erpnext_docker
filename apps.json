@@ -13,6 +13,11 @@
     "name": "posawesome",
     "url": "https://github.com/idibek-alimov/posawesome.git",
     "branch": "main"
+  },
+  {
+    "name": "web_sync",
+    "url": "https://github.com/idibek-alimov/erp_web_sync.git",
+    "branch": "main"
   }
 ]
 

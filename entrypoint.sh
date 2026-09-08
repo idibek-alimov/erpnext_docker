@@ -40,6 +40,12 @@ if [ -f "${BENCH_DIR}/apps_txt_dist" ]; then
     cp "${BENCH_DIR}/apps_txt_dist" "${SITES_DIR}/apps.txt"
 fi
 
+# If web_sync app is present, ensure it is in python path and apps.txt
+if [ -d "${BENCH_DIR}/apps/web_sync" ]; then
+    echo "${BENCH_DIR}/apps/web_sync" > "${BENCH_DIR}/env/lib/python3.11/site-packages/web_sync.pth" 2>/dev/null || true
+    grep -qx "web_sync" "${SITES_DIR}/apps.txt" 2>/dev/null || echo "web_sync" >> "${SITES_DIR}/apps.txt"
+fi
+
 # ---------------------------------------------------------------------------
 # 3. Create or update common_site_config.json with correct service addresses.
 #    This makes the containers relocatable — just change env vars.

@@ -163,7 +163,6 @@ services:
       - sites-data:/var/www/html:ro
     networks:
       - default
-      - frapper-net
 
 volumes:
   mariadb-data:

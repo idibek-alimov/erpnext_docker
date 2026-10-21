@@ -44,7 +44,7 @@ $env:DOCKER_BUILDKIT = "1"
 $buildArgs = @(
     "build",
     "--build-arg", "FRAPPE_REPO=https://github.com/idibek-alimov/frappe.git",
-    "--build-arg", "FRAPPE_BRANCH=version-15",
+    "--build-arg", "FRAPPE_BRANCH=main",
     "--build-arg", "GITHUB_TOKEN=$GithubToken",
     "--build-arg", "CACHEBUST=$CacheBust",
     "-t", $ImageTag,

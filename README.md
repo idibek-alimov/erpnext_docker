@@ -7,10 +7,11 @@ This directory contains everything you need to build a single custom Docker imag
 ## 🏗️ Architecture
 
 - **Custom Image (`DOCKER_IMAGE`)**: Contains Python virtual environment, Node/Yarn compiled assets, and your custom GitHub repositories:
-  - `frappe`: [https://github.com/idibek-alimov/frappe](https://github.com/idibek-alimov/frappe) (`version-15`)
-  - `erpnext`: [https://github.com/idibek-alimov/erpnext](https://github.com/idibek-alimov/erpnext) (`version-15`)
-  - `hrms`: [https://github.com/idibek-alimov/hrms](https://github.com/idibek-alimov/hrms) (`version-15`)
+  - `frappe`: [https://github.com/idibek-alimov/frappe](https://github.com/idibek-alimov/frappe) (`main`)
+  - `erpnext`: [https://github.com/idibek-alimov/erpnext](https://github.com/idibek-alimov/erpnext) (`main`)
+  - `hrms`: [https://github.com/idibek-alimov/hrms](https://github.com/idibek-alimov/hrms) (`main`)
   - `posawesome`: [https://github.com/idibek-alimov/posawesome](https://github.com/idibek-alimov/posawesome) (`main`)
+  - `web_sync`: [https://github.com/idibek-alimov/erp_web_sync](https://github.com/idibek-alimov/erp_web_sync) (`main`)
 - **Supporting Services (Official Images)**:
   - `mariadb:10.11`: Official MariaDB database configured for Frappe.
   - `redis:7-alpine`: Cache and background task queues.

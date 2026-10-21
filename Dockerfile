@@ -10,7 +10,7 @@ ARG DEBIAN_BASE=bookworm
 FROM python:${PYTHON_VERSION}-slim-${DEBIAN_BASE} AS builder
 
 ARG FRAPPE_REPO=https://github.com/idibek-alimov/frappe.git
-ARG FRAPPE_BRANCH=version-15
+ARG FRAPPE_BRANCH=main
 ARG NODE_VERSION=20
 
 ENV DEBIAN_FRONTEND=noninteractive \

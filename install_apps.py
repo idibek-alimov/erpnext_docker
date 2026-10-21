@@ -17,7 +17,7 @@ def main():
 
     for app in apps:
         url = app.get("url")
-        branch = app.get("branch", "version-15")
+        branch = app.get("branch", "main")
         name = app.get("name") or url.rstrip("/").split("/")[-1].replace(".git", "")
         target = f"apps/{name}"
 

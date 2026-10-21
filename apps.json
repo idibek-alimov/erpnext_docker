@@ -2,12 +2,12 @@
   {
     "name": "erpnext",
     "url": "https://github.com/idibek-alimov/erpnext.git",
-    "branch": "version-15"
+    "branch": "main"
   },
   {
     "name": "hrms",
     "url": "https://github.com/idibek-alimov/hrms.git",
-    "branch": "version-15"
+    "branch": "main"
   },
   {
     "name": "posawesome",

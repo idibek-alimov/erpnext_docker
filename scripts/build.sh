@@ -36,7 +36,7 @@ echo "========================================================="
 export DOCKER_BUILDKIT=1
 docker build \
   --build-arg FRAPPE_REPO=https://github.com/idibek-alimov/frappe.git \
-  --build-arg FRAPPE_BRANCH=version-15 \
+  --build-arg FRAPPE_BRANCH=main \
   --build-arg GITHUB_TOKEN="${GITHUB_TOKEN}" \
   --build-arg CACHEBUST=$(date +%s) \
   -t "${IMAGE_TAG}" \
@@ -45,7 +45,7 @@ docker build \
     export DOCKER_BUILDKIT=0
     docker build \
       --build-arg FRAPPE_REPO=https://github.com/idibek-alimov/frappe.git \
-      --build-arg FRAPPE_BRANCH=version-15 \
+      --build-arg FRAPPE_BRANCH=main \
       --build-arg GITHUB_TOKEN="${GITHUB_TOKEN}" \
       --build-arg CACHEBUST=$(date +%s) \
       -t "${IMAGE_TAG}" \

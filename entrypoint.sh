@@ -105,12 +105,14 @@ done
 # ---------------------------------------------------------------------------
 # 5. Populate the shared volume with REAL (dereferenced) static asset files.
 #    assets_dist is baked into the image with cp -r -L so no symlinks exist.
-#    We only copy if the assets directory is missing or empty.
+#    Nginx runs in a separate container without apps/ mounted, so assets in
+#    sites/assets MUST be real files/directories, NOT symlinks.
 # ---------------------------------------------------------------------------
 if [ -d "${BENCH_DIR}/assets_dist" ]; then
-    if [ ! -f "${SITES_DIR}/assets/assets.json" ]; then
+    if [ ! -f "${SITES_DIR}/assets/assets.json" ] || [ -L "${SITES_DIR}/assets/frappe" ]; then
         echo "[entrypoint] Copying compiled assets into sites volume..."
         mkdir -p "${SITES_DIR}/assets"
+        rm -rf "${SITES_DIR}/assets"/*
         cp -r "${BENCH_DIR}/assets_dist/." "${SITES_DIR}/assets/"
         echo "[entrypoint] Assets copied."
     fi

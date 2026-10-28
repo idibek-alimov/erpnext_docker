@@ -64,6 +64,25 @@ docker compose exec -w /home/frappe/frappe-bench backend \
 docker compose exec -w /home/frappe/frappe-bench backend \
     bash -c "if [ -d 'apps/web_sync' ]; then echo '[setup] Installing web_sync...' && bench --site '${SITE_NAME}' install-app web_sync || true; fi"
 
+# ---- 4b. Ensure default customer 'Гость' exists ---------------------------
+echo "[setup] Ensuring default customer 'Гость' exists..."
+docker compose exec -w /home/frappe/frappe-bench/sites backend \
+    python -c "
+import frappe
+frappe.init('${SITE_NAME}')
+frappe.connect()
+if not frappe.db.exists('Customer', 'Гость'):
+    cg = frappe.db.get_value('Customer Group', {'is_group': 0}, 'name') or 'Individual'
+    ter = frappe.db.get_value('Territory', {'is_group': 0}, 'name') or 'All Territories'
+    doc = frappe.get_doc({'doctype': 'Customer', 'customer_name': 'Гость', 'customer_type': 'Individual', 'customer_group': cg, 'territory': ter})
+    doc.insert(ignore_permissions=True)
+    frappe.db.commit()
+for profile in frappe.get_all('POS Profile', fields=['name', 'customer']):
+    if not profile.customer or profile.customer in ('WalkIn Customer', 'Walk-in Customer'):
+        frappe.db.set_value('POS Profile', profile.name, 'customer', 'Гость')
+frappe.db.commit()
+" || true
+
 # ---- 5. Write the site name into currentsite.txt so Frappe always knows --
 #         which site to serve even when the Host header is just "localhost"
 docker compose exec -w /home/frappe/frappe-bench backend \
